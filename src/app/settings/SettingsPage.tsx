@@ -1,4 +1,4 @@
-import { VaultWeaponGroupingStyle } from '@destinyitemmanager/dim-api-types';
+import { OrnamentDisplay, VaultWeaponGroupingStyle } from '@destinyitemmanager/dim-api-types';
 import { currentAccountSelector, hasD1AccountSelector } from 'app/accounts/selectors';
 import { clarityDiscordLink, clarityLink } from 'app/clarity/about';
 import { settingsSelector } from 'app/dim-api/selectors';
@@ -34,7 +34,7 @@ import Checkbox from './Checkbox';
 import { CustomStatsSettings } from './CustomStatsSettings';
 import LanguageSetting from './LanguageSetting';
 import Select, { mapToOptions } from './Select';
-import styles from './SettingsPage.m.scss';
+import * as styles from './SettingsPage.m.scss';
 import SortOrderEditor, { SortProperty } from './SortOrderEditor';
 import Spreadsheets from './Spreadsheets';
 import { TroubleshootingSettings } from './Troubleshooting';
@@ -81,8 +81,12 @@ export default function SettingsPage() {
     (i) => i.bucket.inWeapons && !i.isExotic && i.masterwork && !i.deepsightInfo,
   );
   const exampleArmor = allItems.find((i) => i.bucket.inArmor && !i.isExotic);
+  const exampleOrnament =
+    allItems.find(
+      (i) => i !== exampleArmor && i.bucket.inArmor && i.isExotic && i.ornamentIconDef,
+    ) || allItems.find((i) => i !== exampleArmor && i.ornamentIconDef);
   const exampleArchivedArmor = allItems.find(
-    (i) => i !== exampleArmor && i.bucket.inArmor && !i.isExotic,
+    (i) => i !== exampleArmor && i !== exampleOrnament && i.bucket.inArmor && !i.isExotic,
   );
   const godRoll = {
     wishListPerks: new Set<number>(),
@@ -185,6 +189,7 @@ export default function SettingsPage() {
     featured: t('Settings.SortByFeatured'),
     tier: t('Settings.SortByTier'),
     armorArchetype: t('Settings.ArmorArchetypeModslot'),
+    weaponFrame: t('Settings.WeaponFrame'),
   };
 
   const vaultWeaponGroupingOptions = mapToOptions({
@@ -375,6 +380,15 @@ export default function SettingsPage() {
             </div>
 
             <div className={styles.setting}>
+              <Checkbox
+                label={t('Settings.VaultUnder')}
+                name="vaultBelow"
+                value={settings.vaultBelow}
+                onChange={onCheckChange}
+              />
+            </div>
+
+            <div className={styles.setting}>
               <label htmlFor="itemSort">{t('Settings.SetSort')}</label>
 
               <SortOrderEditor order={itemSortCustom} onSortOrderChanged={itemSortOrderChanged} />
@@ -462,6 +476,13 @@ export default function SettingsPage() {
                   autoLockTagged={settings.autoLockTagged}
                 />
               )}
+              {exampleOrnament && (
+                <InventoryItem
+                  item={exampleOrnament}
+                  isNew={settings.showNewItems}
+                  autoLockTagged={settings.autoLockTagged}
+                />
+              )}
               {exampleArchivedArmor && (
                 <InventoryItem
                   item={exampleArchivedArmor}
@@ -493,6 +514,22 @@ export default function SettingsPage() {
                 <div className={styles.fineprint}>{t('Settings.DefaultItemSizeNote')}</div>
               </div>
             )}
+
+            <div className={styles.setting}>
+              <Checkbox
+                label={t('Settings.OrnamentDisplay')}
+                name="ornamentDisplay"
+                value={settings.ornamentDisplay === OrnamentDisplay.All}
+                onChange={(checked, name) =>
+                  setSetting(name, checked ? OrnamentDisplay.All : OrnamentDisplay.None)
+                }
+              />
+              <div className={styles.fineprint}>
+                {settings.ornamentDisplay === OrnamentDisplay.All
+                  ? t('Settings.OrnamentDisplayExplanationHide')
+                  : t('Settings.OrnamentDisplayExplanationShow')}
+              </div>
+            </div>
 
             {$featureFlags.newItems && (
               <div className={styles.setting}>

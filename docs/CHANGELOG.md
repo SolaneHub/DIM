@@ -1,5 +1,56 @@
 ## Next
 
+* Add setting to toggle display of ornaments and view ornaments when hovering over items
+
+## 8.105.0 <span class="changelog-date">(2025-12-28)</span>
+
+* Fix `exactperk/perkname` matching against a perk's type, instead of just its name.
+* Added the Synthweave bounty counter to Ada-1's bounty descriptions
+
+## 8.104.0 <span class="changelog-date">(2025-12-21)</span>
+
+* Fix the masterwork socket on crafted and enhanced weapons incorrectly showing a masterwork tier number
+
+## 8.103.1 <span class="changelog-date">(2025-12-16)</span>
+
+## 8.103.0 <span class="changelog-date">(2025-12-14)</span>
+
+* Added heat-related weapon stats.
+* Improved mobile view for loadouts.
+
+## 8.102.0 <span class="changelog-date">(2025-12-07)</span>
+
+* DIM should load faster even when it is having trouble loading DIM API data.
+* Festival masks will now show up in the Organizer.
+* Tiered Engrams in postmaster will now match `is:engrams`
+* Fix crash in Loadout Optimizer when changing characters.
+* Include more ingame loadout identification info in Triage loadouts list.
+* Fixed the well-rested XP calculation being too low for the first 5 levels of the season pass.
+* Added a toggle to display vaulted items underneath equipped items in the desktop view.
+* Fixed the default shader saying it cannot roll.
+
+## 8.101.1 <span class="changelog-date">(2025-12-02)</span>
+
+* Fixed a crash on the Records page caused by Seasonal Challenges being removed from the game.
+
+## 8.101.0 <span class="changelog-date">(2025-11-30)</span>
+
+* Show weapon frame info on item icons.
+* Allow sorting inventory by weapon frame
+* support newline escape sequences (\n) in notes
+
+## 8.100.0 <span class="changelog-date">(2025-11-23)</span>
+
+* Fix search/Compare issues with item names containing quotes.
+
+## 8.99.0 <span class="changelog-date">(2025-11-16)</span>
+
+## 8.98.1 <span class="changelog-date">(2025-11-11)</span>
+
+* Display 5 tier pips (instead of none) for bugged Call to Arms Tier 6 holofoil weapons, so there are no misunderstandings.
+
+## 8.98.0 <span class="changelog-date">(2025-11-09)</span>
+
 ## 8.97.0 <span class="changelog-date">(2025-11-02)</span>
 
 * Fix being able to remove vendor items individually from Compare.

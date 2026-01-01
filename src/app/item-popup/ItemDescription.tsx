@@ -5,7 +5,7 @@ import { DimItem } from 'app/inventory/item-types';
 import { wishListSelector } from 'app/wishlists/selectors';
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
-import styles from './ItemDescription.m.scss';
+import * as styles from './ItemDescription.m.scss';
 import NotesArea from './NotesArea';
 
 export default function ItemDescription({ item }: { item: DimItem }) {
@@ -21,12 +21,18 @@ export default function ItemDescription({ item }: { item: DimItem }) {
         <>
           {Boolean(item.description?.length) && (
             <div className={styles.description}>
-              <RichDestinyText text={item.description} ownerId={item.owner} />
+              <RichDestinyText
+                text={item.description}
+                ownerId={item.vendor?.characterId ?? item.owner}
+              />
             </div>
           )}
           {Boolean(item.displaySource?.length) && (
             <div className={clsx(styles.description, styles.secondaryText)}>
-              <RichDestinyText text={item.displaySource} ownerId={item.owner} />
+              <RichDestinyText
+                text={item.displaySource}
+                ownerId={item.vendor?.characterId ?? item.owner}
+              />
             </div>
           )}
         </>

@@ -1,41 +1,31 @@
-import webpack from 'webpack';
-
-import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
-import browserslist from 'browserslist';
-import { execSync } from 'child_process';
+import { InjectManifest } from '@aaroon/workbox-rspack-plugin';
+import filterWebpackStats from '@bundle-stats/plugin-webpack-filter';
+import { type Configuration, rspack } from '@rspack/core';
+import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CompressionPlugin from 'compression-webpack-plugin';
-import CopyWebpackPlugin from 'copy-webpack-plugin';
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-import fs from 'fs';
 import GenerateJsonPlugin from 'generate-json-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import svgToMiniDataURI from 'mini-svg-data-uri';
-import path from 'path';
-import PostCSSAssetsPlugin from 'postcss-assets-webpack-plugin';
 import SondaWebpackPlugin from 'sonda/webpack';
-import TerserPlugin from 'terser-webpack-plugin';
-import 'webpack-dev-server';
-import { InjectManifest } from 'workbox-webpack-plugin';
-import zlib from 'zlib';
-import csp from './content-security-policy';
-import { makeFeatureFlags } from './feature-flags';
-
-import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
-
+import { TsCheckerRspackPlugin } from 'ts-checker-rspack-plugin';
 import { StatsWriterPlugin } from 'webpack-stats-plugin';
-import NotifyPlugin from './notify-webpack-plugin';
+import NotifyPlugin from './notify-webpack-plugin.ts';
+
+import browserslist from 'browserslist';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import svgToMiniDataURI from 'mini-svg-data-uri';
+import { resolve } from 'node:path';
+import zlib from 'zlib';
+import csp from './content-security-policy.ts';
+import { makeFeatureFlags } from './feature-flags.ts';
 
 const ASSET_NAME_PATTERN = 'static/[name]-[contenthash:6][ext]';
 
-import packageJson from '../package.json';
-import createWebAppManifest from './manifest-webapp';
+import packageJson from '../package.json' with { type: 'json' };
+import createWebAppManifest from './manifest-webapp.ts';
 
-import cssnano from 'cssnano';
-import sortMediaQueries from 'postcss-sort-media-queries';
-
-import splash from '../icons/splash.json';
+import splash from '../icons/splash.json' with { type: 'json' };
 
 // https://stackoverflow.com/questions/69584268/what-is-the-type-of-the-webpack-config-function-when-it-comes-to-typescript
 type CLIValues = boolean | string;
@@ -49,7 +39,7 @@ interface Env extends EnvValues {
 }
 type Argv = Record<string, CLIValues>;
 export interface WebpackConfigurationGenerator {
-  (env?: Env, argv?: Argv): webpack.Configuration | Promise<webpack.Configuration>;
+  (env?: Env, argv?: Argv): Configuration | Promise<Configuration>;
 }
 
 export default (env: Env) => {
@@ -84,7 +74,15 @@ export default (env: Env) => {
   const jsFilenamePattern = env.dev ? '[name]-[fullhash].js' : '[name]-[contenthash:8].js';
   const cssFilenamePattern = env.dev ? '[name]-[fullhash].css' : '[name]-[contenthash:8].css';
 
-  const config: webpack.Configuration = {
+  const lightningCssLoader = {
+    loader: 'builtin:lightningcss-loader',
+    /** @type {import('@rspack/core').LightningcssLoaderOptions} */
+    options: {
+      targets: packageJson.browserslist,
+    },
+  };
+
+  const config: Configuration = {
     mode: env.dev ? ('development' as const) : ('production' as const),
 
     entry: {
@@ -96,10 +94,11 @@ export default (env: Env) => {
     },
 
     // https://github.com/webpack/webpack-dev-server/issues/2758
-    target: env.dev ? 'web' : 'browserslist',
+    // target: env.dev ? 'web' : 'browserslist',
+    target: 'browserslist',
 
     output: {
-      path: path.resolve('./dist'),
+      path: resolve('./dist'),
       publicPath,
       filename: jsFilenamePattern,
       chunkFilename: jsFilenamePattern,
@@ -113,7 +112,7 @@ export default (env: Env) => {
           host: process.env.DOCKER ? '0.0.0.0' : 'localhost',
           allowedHosts: 'all',
           server: {
-            type: 'spdy',
+            type: 'https',
             options: {
               key: fs.readFileSync('key.pem'), // Private keys in PEM format.
               cert: fs.readFileSync('cert.pem'), // Cert chains in PEM format.
@@ -124,14 +123,14 @@ export default (env: Env) => {
           },
           client: {
             overlay: false,
-            logging: "none", // we don't need to see build errors in the console log
+            logging: 'none', // we don't need to see build errors in the console log
           },
           historyApiFallback: true,
           hot: 'only',
           liveReload: false,
           headers: (req) => {
             // This mirrors what's in .htaccess - headers for html paths, COEP for JS.
-            const headers: Record<string, string | string[]> = req.baseUrl.match(/^[^.]+$/)
+            const headers: Record<string, string | string[]> = req.url?.match(/^[^.]+$/)
               ? {
                   'Content-Security-Policy': contentSecurityPolicy,
                   // credentialless is only supported by chrome but require-corp blocks Bungie.net messages
@@ -139,7 +138,7 @@ export default (env: Env) => {
                   //'Cross-Origin-Embedder-Policy': 'credentialless',
                   //'Cross-Origin-Opener-Policy': 'same-origin',
                 }
-              : req.baseUrl.match(/\.js$/)
+              : req.url?.match(/\.js$/)
                 ? {
                     // credentialless is only supported by chrome but require-corp blocks Bungie.net messages
                     //'Cross-Origin-Embedder-Policy': 'require-corp',
@@ -175,11 +174,13 @@ export default (env: Env) => {
         automaticNameDelimiter: '-',
       },
       minimizer: [
-        new TerserPlugin({
-          parallel: true,
-          terserOptions: {
+        new rspack.SwcJsMinimizerRspackPlugin({
+          minimizerOptions: {
             ecma: 2020,
             module: true,
+            format: {
+              comments: false,
+            },
             compress: {
               passes: 3,
               toplevel: true,
@@ -201,12 +202,22 @@ export default (env: Env) => {
             },
             mangle: { toplevel: true },
           },
+          extractComments: false,
+        }),
+        new rspack.LightningCssMinimizerRspackPlugin({
+          minimizerOptions: {
+            targets: packageJson.browserslist,
+          },
         }),
       ],
     },
 
     module: {
-      strictExportPresence: true,
+      parser: {
+        javascript: {
+          exportsPresence: 'error',
+        },
+      },
 
       rules: [
         {
@@ -271,9 +282,9 @@ export default (env: Env) => {
         {
           test: /\.m\.scss$/,
           use: [
-            env.dev ? 'style-loader' : MiniCssExtractPlugin.loader,
+            env.dev ? 'style-loader' : rspack.CssExtractRspackPlugin.loader,
             {
-              loader: 'css-modules-typescript-loader',
+              loader: '@bhollis/css-modules-typescript-loader',
               options: {
                 mode: process.env.CI ? 'verify' : 'emit',
               },
@@ -286,37 +297,35 @@ export default (env: Env) => {
                     ? '[name]_[local]-[contenthash:base64:8]'
                     : '[contenthash:base64:8]',
                   exportLocalsConvention: 'camelCaseOnly',
-                  // TODO: It's possible that setting this to true would allow
-                  // us to eliminate some original CSS names that still get into
-                  // the bundle, but it breaks css-modules-typescript-loader so
-                  // we'd need to fork/replace it.
-                  namedExport: false,
                 },
                 importLoaders: 2,
               },
             },
-            'postcss-loader',
+            lightningCssLoader,
             { loader: 'sass-loader', options: { sassOptions: { quietDeps: true } } },
           ],
+          type: 'javascript/auto',
         },
         // Regular *.scss are global
         {
           test: /\.scss$/,
           exclude: /\.m\.scss$/,
           use: [
-            env.dev ? 'style-loader' : MiniCssExtractPlugin.loader,
+            env.dev ? 'style-loader' : rspack.CssExtractRspackPlugin.loader,
             'css-loader',
-            'postcss-loader',
+            lightningCssLoader,
             { loader: 'sass-loader', options: { sassOptions: { quietDeps: true } } },
           ],
+          type: 'javascript/auto',
         },
         {
           test: /\.css$/,
           use: [
-            env.dev ? 'style-loader' : MiniCssExtractPlugin.loader,
+            env.dev ? 'style-loader' : rspack.CssExtractRspackPlugin.loader,
             'css-loader',
-            'postcss-loader',
+            lightningCssLoader,
           ],
+          type: 'javascript/auto',
         },
         // All files with a '.ts' or '.tsx' extension will be handled by 'babel-loader'.
         {
@@ -378,16 +387,25 @@ export default (env: Env) => {
     resolve: {
       extensions: ['.js', '.json', '.ts', '.tsx', '.jsx'],
 
-      plugins: [new TsconfigPathsPlugin()],
+      // Install aliases from tsconfig
+      tsConfig: resolve('./tsconfig.json'),
 
       alias: {
-        'textarea-caret': path.resolve('./src/app/utils/textarea-caret'),
+        'textarea-caret': resolve('./src/app/utils/textarea-caret'),
       },
 
       fallback: {
+        http: false,
+        https: false,
+        http2: false,
+        util: false,
+        zlib: false,
+        browser: false,
+        process: false,
+        os: false,
+        constants: false,
         fs: false,
-        net: false,
-        tls: false,
+        path: false,
       },
     },
 
@@ -395,35 +413,14 @@ export default (env: Env) => {
   };
 
   const plugins: any[] = [
-    new webpack.IgnorePlugin({ resourceRegExp: /caniuse-lite\/data\/regions/ }),
+    new rspack.IgnorePlugin({ resourceRegExp: /caniuse-lite\/data\/regions/ }),
 
     new NotifyPlugin('DIM', !env.dev),
 
-    new MiniCssExtractPlugin({
+    new rspack.CssExtractRspackPlugin({
       filename: cssFilenamePattern,
       chunkFilename: cssFilenamePattern,
-    }),
-
-    // Compress CSS after bundling so we can optimize across rules
-    new PostCSSAssetsPlugin({
-      test: /\.css$/,
-      log: false,
-      plugins: [
-        // Sort media queries so they can be merged by cssnano
-        sortMediaQueries({
-          sort: 'desktop-first',
-        }),
-        cssnano({
-          preset: [
-            'default',
-            {
-              autoprefixer: false,
-              // We've already run svgo on all images
-              svgo: false,
-            },
-          ],
-        }),
-      ],
+      ignoreOrder: true,
     }),
 
     // TODO: prerender?
@@ -493,7 +490,7 @@ export default (env: Env) => {
     // The web app manifest controls how our app looks when installed.
     new GenerateJsonPlugin('./manifest-webapp.json', createWebAppManifest(publicPath)),
 
-    new CopyWebpackPlugin({
+    new rspack.CopyRspackPlugin({
       patterns: [
         // Only copy the manifests out of the data folder. Everything else we import directly into the bundle.
         { from: './src/data/d1/manifests', to: 'data/d1/manifests' },
@@ -506,7 +503,7 @@ export default (env: Env) => {
       ],
     }),
 
-    new webpack.DefinePlugin({
+    new rspack.DefinePlugin({
       $DIM_VERSION: JSON.stringify(version),
       $DIM_FLAVOR: JSON.stringify(env.name),
       $DIM_BUILD_DATE: JSON.stringify(buildTime),
@@ -532,8 +529,8 @@ export default (env: Env) => {
 
   if (env.dev) {
     // In dev we use babel to compile TS, and fork off a separate typechecker
-    plugins.push(new ForkTsCheckerWebpackPlugin());
-    plugins.push(new ReactRefreshWebpackPlugin({ overlay: false }));
+    plugins.push(new TsCheckerRspackPlugin());
+    plugins.push(new ReactRefreshPlugin({ overlay: false }));
   } else {
     // env.beta and env.release
     plugins.push(
@@ -549,7 +546,12 @@ export default (env: Env) => {
             /^(?!en).+.json/,
             /webpack-stats.json/,
             /screenshots\//,
+            /\.br$/,
           ],
+        },
+        transform: (webpackStats) => {
+          const filteredSource = filterWebpackStats(webpackStats);
+          return JSON.stringify(filteredSource);
         },
       }),
 
@@ -557,13 +559,14 @@ export default (env: Env) => {
         format: 'html',
         outputDir: 'sonda-report',
         open: false,
+        deep: true,
         sources: true,
         gzip: false,
         brotli: false,
         exclude: [/\.br$/, /\.gz$/, /\/manifests\//, /webpack-stats\.json/],
       }),
 
-      new CopyWebpackPlugin({
+      new rspack.CopyRspackPlugin({
         patterns: [
           {
             from: `./config/.well-known/android-config${env.release ? '' : '.beta'}.json`,
@@ -582,7 +585,7 @@ export default (env: Env) => {
       }),
 
       // Tell React we're in Production mode
-      new webpack.DefinePlugin({
+      new rspack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify('production'),
         'process.env': JSON.stringify({ NODE_ENV: 'production' }),
       }),

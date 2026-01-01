@@ -58,6 +58,7 @@ export const itemStatAllowList = [
   StatHashes.Accuracy,
   StatHashes.Stability,
   StatHashes.Handling,
+  StatHashes.VentSpeed,
   StatHashes.ChargeRate,
   StatHashes.GuardEndurance,
   StatHashes.ReloadSpeed,
@@ -65,12 +66,15 @@ export const itemStatAllowList = [
   StatHashes.AirborneEffectiveness,
   StatHashes.Zoom,
   StatHashes.AmmoGeneration,
+  StatHashes.HeatGenerated,
+  StatHashes.CoolingEfficiency,
   StatHashes.RecoilDirection,
   StatHashes.Magazine,
   StatHashes.AmmoCapacity,
   ...armorStats,
   TOTAL_STAT_HASH,
 ];
+
 export function getStatSortOrder(statHash: number) {
   const order = itemStatAllowList.indexOf(statHash);
   return order === -1 ? 999999 + Math.abs(statHash) : order;
@@ -198,8 +202,8 @@ function shouldShowStat(
   return Boolean(
     // Must be on the list of interpolated stats
     statDisplaysByStatHash[statHash] &&
-      // Must be a stat we want to display
-      isAllowedItemStat(statHash),
+    // Must be a stat we want to display
+    isAllowedItemStat(statHash),
   );
 }
 

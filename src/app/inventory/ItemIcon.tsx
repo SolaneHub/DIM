@@ -18,7 +18,7 @@ import {
 import holofoilAnim from 'images/holofoil-anim.apng';
 import pursuitComplete from 'images/pursuitComplete.svg';
 import { DimItem } from './item-types';
-import styles from './ItemIcon.m.scss';
+import * as styles from './ItemIcon.m.scss';
 import { isPluggableItem } from './store/sockets';
 
 const itemTierStyles: Record<ItemRarityName, string> = {
@@ -113,9 +113,13 @@ export default function ItemIcon({ item, className }: { item: DimItem; className
       : undefined;
 
   // The actual item icon. Use the ornamented version where available.
-  let foreground = (item.ornamentIconDef ?? item.iconDef)?.foreground ?? item.icon;
+  let foreground = (item.iconDef?.foreground ?? item.icon) || '';
+  let altIcon = '';
+  if (item.ornamentIconDef) {
+    altIcon = item.ornamentIconDef.foreground;
+  }
 
-  if (!animatedBackground) {
+  if (!animatedBackground && !altIcon) {
     backgrounds.unshift(foreground);
     foreground = '';
   }
@@ -145,7 +149,9 @@ export default function ItemIcon({ item, className }: { item: DimItem; className
     // Featured flags
     item.featured ? itemConstants?.featuredItemFlagPath : undefined,
     // Tier pips
-    item.tier > 0 && !item.isEngram && itemConstants?.gearTierOverlayImagePaths[item.tier - 1],
+    item.tier > 0 &&
+      !item.isEngram &&
+      itemConstants?.gearTierOverlayImagePaths[Math.min(item.tier - 1, 4)],
   ]);
 
   if (craftedOverlays.length === 0 && seasonBanner) {
@@ -171,10 +177,16 @@ export default function ItemIcon({ item, className }: { item: DimItem; className
           {animatedBackground && (
             <img src={animatedBackground} className={styles.animatedBackground} />
           )}
+          {foreground && (
+            <div
+              style={bungieBackgroundStyle(foreground)}
+              className={clsx({ [styles.hasAltIcon]: Boolean(altIcon) })}
+            />
+          )}
+          {altIcon && <div style={bungieBackgroundStyle(altIcon)} className={styles.altIcon} />}
           {masterworkGlow && (
             <div style={bungieBackgroundStyle(masterworkGlow)} className={styles.adjustOpacity} />
           )}
-          {foreground && <div style={bungieBackgroundStyle(foreground)} />}
           {seasonBanner && (
             <div style={bungieBackgroundStyle(seasonBanner)} className={styles.shiftedLayer} />
           )}

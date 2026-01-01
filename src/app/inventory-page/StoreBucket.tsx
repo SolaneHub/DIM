@@ -33,7 +33,7 @@ import { shallowEqual } from 'fast-equals';
 import { memo, useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import styles from './StoreBucket.m.scss';
+import * as styles from './StoreBucket.m.scss';
 import './StoreBucket.scss';
 import StoreBucketDropTarget from './StoreBucketDropTarget';
 import StoreInventoryItem from './StoreInventoryItem';
@@ -279,9 +279,7 @@ export default function StoreBucket({
     // updated (so currentStore is cleared) but the store from props is still around because its redux subscription
     // hasn't fired yet.
     items = items.filter(
-      (i) =>
-        i.classType === DestinyClass.Unknown ||
-        (currentStore && i.classType === currentStore.classType),
+      (i) => i.classType === DestinyClass.Unknown || i.classType === currentStore?.classType,
     );
   }
 

@@ -152,12 +152,14 @@ export function makeFakeItem(
     quantity = 1,
     allowWishList = false,
     itemValueVisibility,
+    tooltipNotificationIndexes = [],
   }: {
     itemInstanceId?: string;
     quantity?: number;
     allowWishList?: boolean;
     /** if available, this should be passed in from a vendor saleItem (DestinyVendorSaleItemComponent) */
     itemValueVisibility?: DestinyVendorSaleItemComponent['itemValueVisibility'];
+    tooltipNotificationIndexes?: number[] | undefined;
   } = emptyObject(),
 ): DimItem | undefined {
   const item = makeItem(
@@ -174,7 +176,7 @@ export function makeFakeItem(
       lockable: false,
       state: ItemState.None,
       isWrapper: false,
-      tooltipNotificationIndexes: [],
+      tooltipNotificationIndexes: tooltipNotificationIndexes ?? [],
       metricObjective: {} as DestinyObjectiveProgress,
       versionNumber: context.defs.InventoryItem.get(itemHash)?.quality?.currentVersion,
     },
@@ -348,6 +350,10 @@ export function makeItem(
     itemDef.traitHashes?.includes(TraitHashes.ItemEngram) ||
     false;
 
+  if (isEngram && normalBucket.hash !== BucketHashes.Engrams) {
+    normalBucket = buckets.byHash[BucketHashes.Engrams];
+  }
+
   // https://github.com/Bungie-net/api/issues/134, class items had a primary stat
 
   let primaryStat: DimItem['primaryStat'] = null;
@@ -393,6 +399,8 @@ export function makeItem(
 
   const tooltipNotifications = item.tooltipNotificationIndexes?.length
     ? item.tooltipNotificationIndexes
+        // guarding against our special case for Synth bounties in case things change
+        .filter((i) => i >= 0 && i < itemDef.tooltipNotifications?.length)
         // why the optional chain? well, somehow, an item can return tooltipNotificationIndexes,
         // but have no tooltipNotifications in its def
         .map((i) => itemDef.tooltipNotifications?.[i])
@@ -558,18 +566,18 @@ export function makeItem(
   // *able
   createdItem.taggable = Boolean(
     createdItem.lockable ||
-      createdItem.classified ||
-      // Shaders can be tagged from collections
-      itemDef.itemSubType === DestinyItemSubType.Shader ||
-      // Mods can be tagged from collections...
-      (createdItem.itemCategoryHashes.includes(ItemCategoryHashes.Mods_Mod) &&
-        // ... but not catalysts
-        !itemDef.traitHashes?.includes(TraitHashes.ItemExoticCatalyst)),
+    createdItem.classified ||
+    // Shaders can be tagged from collections
+    itemDef.itemSubType === DestinyItemSubType.Shader ||
+    // Mods can be tagged from collections...
+    (createdItem.itemCategoryHashes.includes(ItemCategoryHashes.Mods_Mod) &&
+      // ... but not catalysts
+      !itemDef.traitHashes?.includes(TraitHashes.ItemExoticCatalyst)),
   );
   createdItem.comparable = Boolean(
     createdItem.equipment &&
-      createdItem.lockable &&
-      createdItem.bucket.hash !== BucketHashes.Emblems,
+    createdItem.lockable &&
+    createdItem.bucket.hash !== BucketHashes.Emblems,
   );
 
   if (createdItem.primaryStat) {
@@ -589,9 +597,9 @@ export function makeItem(
 
   createdItem.wishListEnabled = Boolean(
     createdItem.sockets &&
-      (createdItem.bucket.inWeapons ||
-        // Exotic class items can be wishlisted
-        (createdItem.bucket.hash === BucketHashes.ClassArmor && createdItem.isExotic)),
+    (createdItem.bucket.inWeapons ||
+      // Exotic class items can be wishlisted
+      (createdItem.bucket.hash === BucketHashes.ClassArmor && createdItem.isExotic)),
   );
 
   // Extract weapon crafting info from the crafted socket but
@@ -858,7 +866,11 @@ function getItemCategoryHashes(itemDef: DestinyInventoryItemDefinition): ItemCat
 
     // Masks are helmets too
     if (additionalICH === ItemCategoryHashes.Mask) {
-      itemCategoryHashes = [...itemCategoryHashes, ItemCategoryHashes.Helmets];
+      itemCategoryHashes = [
+        ...itemCategoryHashes,
+        ItemCategoryHashes.Helmets,
+        ItemCategoryHashes.Armor,
+      ];
     }
   }
 

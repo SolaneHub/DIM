@@ -128,6 +128,18 @@ export const realD2ArmorStatHashByName: StringLookup<StatHashes> = {
  */
 export const realD2ArmorStatSearchByHash = invert(realD2ArmorStatHashByName);
 
+// We keep the old names for now, both for D1 compatibility and for existing saved
+// searches. In the future we could have a different map for D1 names and D2
+// names.
+const oldArmorStatNames: StringLookup<StatHashes> = {
+  mobility: StatHashes.Weapons,
+  resilience: StatHashes.Health,
+  recovery: StatHashes.Class,
+  discipline: StatHashes.Grenade,
+  intellect: StatHashes.Super,
+  strength: StatHashes.Melee,
+};
+
 /**
  * Lookup with `'weapons' -> StatHashes.Weapons` etc.
  *
@@ -135,15 +147,7 @@ export const realD2ArmorStatSearchByHash = invert(realD2ArmorStatHashByName);
  */
 export const D2ArmorStatHashByName: StringLookup<StatHashes> = {
   ...realD2ArmorStatHashByName,
-  // We keep the old names for now, both for D1 compatibility and for existing saved
-  // searches. In the future we could have a different map for D1 names and D2
-  // names.
-  mobility: StatHashes.Weapons,
-  resilience: StatHashes.Health,
-  recovery: StatHashes.Class,
-  discipline: StatHashes.Grenade,
-  intellect: StatHashes.Super,
-  strength: StatHashes.Melee,
+  ...oldArmorStatNames,
 } as const;
 
 /**
@@ -172,6 +176,9 @@ export const D2WeaponStatHashByName = {
   charge: StatHashes.ChargeTime,
   impact: StatHashes.Impact,
   handling: StatHashes.Handling,
+  ventspeed: StatHashes.VentSpeed,
+  heatgen: StatHashes.HeatGenerated,
+  cooling: StatHashes.CoolingEfficiency,
   range: StatHashes.Range,
   stability: StatHashes.Stability,
   reload: StatHashes.ReloadSpeed,
@@ -188,6 +195,12 @@ export const D2WeaponStatHashByName = {
   accuracy: StatHashes.Accuracy,
   ammogen: StatHashes.AmmoGeneration,
   persistence: StatHashes.Persistence,
+  swingspeed: StatHashes.SwingSpeed,
+  guardefficiency: StatHashes.GuardEfficiency,
+  guardresistance: StatHashes.GuardResistance,
+  chargerate: StatHashes.ChargeRate,
+  guardendurance: StatHashes.GuardEndurance,
+  ammocapacity: StatHashes.AmmoCapacity,
 };
 
 export const D2PlugCategoryByStatHash = new Map<StatHashes, PlugCategoryHashes>([
@@ -197,21 +210,15 @@ export const D2PlugCategoryByStatHash = new Map<StatHashes, PlugCategoryHashes>(
   [StatHashes.Impact, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatDamage],
   [StatHashes.DrawTime, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatDrawTime],
   [StatHashes.Handling, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatHandling],
+  [StatHashes.CoolingEfficiency, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatHeatEfficiency],
+  [StatHashes.Persistence, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatPersistence],
   [StatHashes.Range, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatRange],
   [StatHashes.ReloadSpeed, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatReload],
   [StatHashes.Stability, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatStability],
   [StatHashes.Velocity, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatProjectileSpeed],
+  [StatHashes.VentSpeed, PlugCategoryHashes.V400PlugsWeaponsMasterworksStatVentSpeed],
   [StatHashes.ShieldDuration, PlugCategoryHashes.V600PlugsWeaponsMasterworksStatShieldDuration],
 ]);
-
-export const swordStatsByName = {
-  swingspeed: StatHashes.SwingSpeed,
-  guardefficiency: StatHashes.GuardEfficiency,
-  guardresistance: StatHashes.GuardResistance,
-  chargerate: StatHashes.ChargeRate,
-  guardendurance: StatHashes.GuardEndurance,
-  ammocapacity: StatHashes.AmmoCapacity,
-};
 
 //
 // ITEMS / ITEMCATERGORY KNOWN VALUES
@@ -243,7 +250,7 @@ export const silverItemHash = 3147280338; // InventoryItem "Silver"
 export const DEEPSIGHT_HARMONIZER = 2228452164;
 
 // For loadout mods obliterated from the defs, we instead return this def
-export const deprecatedPlaceholderArmorModHash = 3947616002; // InventoryItem "Deprecated Armor Mod"
+export const deprecatedPlaceholderArmorModHash = 444600262; // InventoryItem "Super Mod"
 
 // Weapon components, like barrels, mags, etc.
 // Plugs that contribute to a weapon's stats, but aren't its base stats, traits, or mods.

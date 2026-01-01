@@ -19,7 +19,7 @@ import clsx from 'clsx';
 import { useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import DesktopItemActions, { menuClassName } from './DesktopItemActions';
-import styles from './ItemPopup.m.scss';
+import * as styles from './ItemPopup.m.scss';
 import ItemPopupHeader from './ItemPopupHeader';
 import { useItemPopupTabs } from './ItemPopupTabs';
 import ItemTagHotkeys from './ItemTagHotkeys';
@@ -93,7 +93,10 @@ export default function ItemPopup({
         (failureString) =>
           failureString.length > 0 && (
             <div className={styles.failureReason} key={failureString}>
-              <RichDestinyText text={failureString} ownerId={item.owner} />
+              <RichDestinyText
+                text={failureString}
+                ownerId={item.vendor?.characterId ?? item.owner}
+              />
             </div>
           ),
       )}

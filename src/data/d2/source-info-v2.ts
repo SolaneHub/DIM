@@ -167,7 +167,7 @@ const D2Sources: {
       1281387702, // Source: Unlock Your Void Subclass
       1701477406, // Source: Flashpoint milestones; Legendary engrams.
       2242939082, // Requires Hunter Class
-      2278847330, // Requires Guardian Rank 5
+      2278847330, // Requires Guardian Rank 3
       2308290458, // Requires 1,000 Warlock Kills
       2552784968, // Requires Guardian Rank 2
       2744321951, // Source: Complete a heroic Public Event.
@@ -199,6 +199,11 @@ const D2Sources: {
       3100439379, // Source: Mission "Exorcism"
     ],
     enteredDCV: 20,
+  },
+  conquest: {
+    sourceHashes: [
+      1331532890, // Source: Seasonal Conquest Triumph "Ultimate Victory"
+    ],
   },
   contact: {
     sourceHashes: [
@@ -388,6 +393,7 @@ const D2Sources: {
       1745960977, // Source: "Pit of Heresy" Dungeon
       2463956052, // Source: Vesper's Host
       2607970476, // Source: Sundered Doctrine
+      3247513834, // Source: Equilibrium
       3288974535, // Source: "Ghosts of the Deep" Dungeon
     ],
     itemHashes: [
@@ -471,6 +477,11 @@ const D2Sources: {
     ],
     enteredDCV: 20,
   },
+  equilibrium: {
+    sourceHashes: [
+      3247513834, // Source: Equilibrium
+    ],
+  },
   europa: {
     sourceHashes: [
       286427063, // Source: Fallen Empire Campaign
@@ -484,23 +495,15 @@ const D2Sources: {
   events: {
     itemHashes: [
       425681240, // Acosmic
-      495940989, // Avalanche
       601948197, // Zephyr
       689294985, // Jurassic Green
-      1123433952, // Stay Frosty
-      1183116657, // Glacioclasm
       1280894514, // Mechabre
-      1845372864, // Albedo Wing
-      1845978721, // Avalanche
       2477980485, // Mechabre
       2603335652, // Jurassic Green
-      2812100428, // Stay Frosty
-      2814093983, // Cold Front
       2869466318, // BrayTech Werewolf
       3400256755, // Zephyr
       3558681245, // BrayTech Werewolf
       3559361670, // The Title
-      3573686365, // Glacioclasm
     ],
     sourceHashes: [
       32323943, // Source: Moments of Triumph
@@ -584,6 +587,7 @@ const D2Sources: {
       2296534980, // Source: Exotic Mission Encore
       2745272818, // Source: "Presage" Exotic Quest
       2856954949, // Source: "Let Loose Thy Talons" Exotic Quest
+      3237053501, // Source: Heliostat
       3597879858, // Source: "Presage" Exotic Quest
     ],
   },
@@ -710,6 +714,11 @@ const D2Sources: {
       2676881949, // Source: Season of the Haunted
     ],
     enteredDCV: 20,
+  },
+  heliostat: {
+    sourceHashes: [
+      3237053501, // Source: Heliostat
+    ],
   },
   heresy: {
     sourceHashes: [
@@ -1039,6 +1048,7 @@ const D2Sources: {
   },
   'pinnacle-weapon': {
     itemHashes: [
+      444627789, // Oxygen SR3
       578459533, // Wendigo GL3
       654608616, // Revoker
       1050806815, // The Recluse
@@ -1048,6 +1058,7 @@ const D2Sources: {
       3354242550, // The Recluse
       3907337522, // Oxygen SR3
       3962575203, // Hush
+      4104613038, // Oxygen SR3
     ],
     sourceHashes: [
       598662729, // Source: Reach Glory Rank "Legend" in the Crucible.
@@ -1189,6 +1200,16 @@ const D2Sources: {
       3937492340, // Source: Seraph Bounties
     ],
     enteredDCV: 20,
+  },
+  reclaim: {
+    sourceHashes: [
+      2929839827, // Source: Reclaim
+    ],
+  },
+  renegades: {
+    sourceHashes: [
+      178383754, // Source: Renegades
+    ],
   },
   revenant: {
     sourceHashes: [
@@ -1426,7 +1447,6 @@ const D2Sources: {
       351235593, // Source: Eliminate Prison of Elders escapees found in strikes.
       412991783, // Source: Strikes
       539840256, // Source: Associated Vanguard Quest
-      681989555, // Source: 3 Crossplay Beta Vanguard Strikes
       1144274899, // Source: Complete this weapon's associated Vanguard quest.
       1216155659, // Source: Complete the "Season 8: First Watch" quest.
       1244908294, // Source: Complete the "Loaded Question" quest from Zavala.
@@ -1508,7 +1528,7 @@ const D2Sources: {
       3390015730, // Source: Trials of Osiris Challenges
       3471208558, // Source: Trials of Osiris Wins
       3543690049, // Source: Complete a flawless Trials ticket.
-      3564069447, // Source: Flawless Win with a "Flight of the Pigeon" Medal
+      3564069447, // Source: Flawless with a "Flight of the Pigeon" medal for each win
     ],
   },
   umbral: {

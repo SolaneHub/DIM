@@ -9,15 +9,17 @@ import {
   isArtifice,
   nonPullablePostmasterItem,
 } from 'app/utils/item-utils';
+import { getWeaponArchetype } from 'app/utils/socket-utils';
+import { DestinyAmmunitionType } from 'bungie-api-ts/destiny2';
 import clsx from 'clsx';
-import { BucketHashes } from 'data/d2/generated-enums';
+import { BucketHashes, ItemCategoryHashes } from 'data/d2/generated-enums';
 import React, { useMemo } from 'react';
 import BungieImage, { bungieBackgroundStyle } from '../dim-ui/BungieImage';
 import { AppIcon, lockIcon, stickyNoteIcon } from '../shell/icons';
 import { InventoryWishListRoll } from '../wishlists/wishlists';
 import BadgeInfo, { shouldShowBadge } from './BadgeInfo';
 import { TagValue } from './dim-item-info';
-import styles from './InventoryItem.m.scss';
+import * as styles from './InventoryItem.m.scss';
 import { DimItem } from './item-types';
 import ItemIcon from './ItemIcon';
 import ItemIconPlaceholder from './ItemIconPlaceholder';
@@ -133,10 +135,10 @@ export default function InventoryItem({
         )}
         {statFocusHash !== undefined ? (
           <StatFocus statHash={statFocusHash} />
+        ) : hasInterestingModSlots ? (
+          <SpecialtyModSlotIcon className={clsx(styles.topRight, styles.statFocus)} item={item} />
         ) : (
-          hasInterestingModSlots && (
-            <SpecialtyModSlotIcon className={styles.statFocus} item={item} />
-          )
+          item.bucket.inWeapons && <WeaponFrame item={item} />
         )}
         {(nonPullablePostmasterItem(item) && <AlertIcon className={styles.warningIcon} />) ||
           ($featureFlags.newItems && isNew && <NewItemIndicator />)}
@@ -176,11 +178,28 @@ function StatFocus({ statHash }: { statHash: number }) {
   return (
     defs && (
       <BungieImage
-        className={styles.statFocus}
+        className={clsx(styles.topRight, styles.statFocus)}
         src={icon}
         style={bungieBackgroundStyle(icon)}
         alt=""
       />
     )
   );
+}
+
+function WeaponFrame({ item }: { item: DimItem }) {
+  const isErgoSum =
+    item.ammoType === DestinyAmmunitionType.Special &&
+    item.itemCategoryHashes.includes(ItemCategoryHashes.Sword);
+  if (!item.isExotic || isErgoSum) {
+    const frame = getWeaponArchetype(item);
+    return (
+      frame && (
+        <div
+          className={clsx(styles.topRight, styles.weaponFrame, isErgoSum && styles.ergoSum)}
+          style={bungieBackgroundStyle(frame.displayProperties.icon)}
+        />
+      )
+    );
+  }
 }
