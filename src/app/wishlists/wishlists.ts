@@ -177,14 +177,33 @@ export function getInventoryWishListRoll(
 ): InventoryWishListRoll | undefined {
   // It could be under the item hash, the wildcard, or any of the item's categories
   for (const hash of [item.hash, DimWishList.WildcardItemId, ...item.itemCategoryHashes]) {
-    const matchingWishListRoll = wishListRolls
-      .get(hash)
-      ?.find((cr) => allDesiredPerksExist(item, cr));
-    if (matchingWishListRoll) {
+    // There may be multiple matching wishlist rolls for a single item (multiple god-rolls).
+    // Previously we only took the first matching roll which meant perks from later
+    // matching rolls were ignored. Instead, collect all matching rolls and merge
+    // their matching plugs so any matching perk shows as wishlisted.
+    const matchingRolls = wishListRolls.get(hash)?.filter((cr) => allDesiredPerksExist(item, cr));
+    if (matchingRolls && matchingRolls.length > 0) {
+      const combinedPerks = new Set<number>();
+      let notes: string | undefined = undefined;
+
+      for (const r of matchingRolls) {
+        const plugs = getWishListPlugs(item, r);
+        for (const p of plugs) {
+          combinedPerks.add(p);
+        }
+        // Prefer the first non-empty notes value
+        if (!notes && r.notes) {
+          notes = r.notes;
+        }
+      }
+
+      // If all matching rolls are undesirable, mark the combined roll undesirable.
+      const isUndesirable = matchingRolls.every((r) => Boolean(r.isUndesirable));
+
       return {
-        wishListPerks: getWishListPlugs(item, matchingWishListRoll),
-        notes: matchingWishListRoll.notes,
-        isUndesirable: matchingWishListRoll.isUndesirable,
+        wishListPerks: combinedPerks,
+        notes,
+        isUndesirable,
       };
     }
   }
