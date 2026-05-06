@@ -96,6 +96,7 @@ export default function SettingsPage() {
     wishListPerks: new Set<number>(),
     notes: undefined,
     isUndesirable: false,
+    matchingRolls: [],
   };
 
   const onCheckChange = (checked: boolean, name: keyof Settings) => {
