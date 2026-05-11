@@ -765,11 +765,11 @@ export function getColumns(
         id: 'shaders',
         className: styles.perkLike,
         header: t('Organizer.Columns.Shaders'),
-        value: (item) => perkString(getSocketsByType(item, 'cosmetics')),
+        value: (item) => perkString(getSocketsByType(item, 'cosmetics', false)),
         cell: (_val, item) => (
           <PerksCell
             item={item}
-            sockets={getSocketsByType(item, 'cosmetics')}
+            sockets={getSocketsByType(item, 'cosmetics', false)}
             onPlugClicked={onPlugClicked}
           />
         ),

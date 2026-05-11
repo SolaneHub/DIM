@@ -67,7 +67,7 @@ export class RateLimiterQueue {
   }
 
   processQueue() {
-    if (this.queue.length) {
+    if (this.queue.length && this.count === 0) {
       if (this.canProcess()) {
         const config = this.queue.shift()!;
         this.count++;

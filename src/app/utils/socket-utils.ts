@@ -363,16 +363,14 @@ export function getDisplayedItemSockets(
 export function getSocketsByType(
   item: DimItem,
   type?: 'all' | 'traits' | 'cosmetics' | 'origin' | 'mods' | 'perks' | 'components',
+  excludeEmptySockets = true,
 ): DimSocket[] {
   if (!item.sockets) {
     return [];
   }
 
   let sockets = [];
-  const { modSocketsByCategory, perks } = getDisplayedItemSockets(
-    item,
-    /* excludeEmptySockets */ true,
-  )!;
+  const { modSocketsByCategory, perks } = getDisplayedItemSockets(item, excludeEmptySockets)!;
 
   if (perks) {
     sockets.push(...getSocketsByIndexes(item.sockets, perks.socketIndexes));

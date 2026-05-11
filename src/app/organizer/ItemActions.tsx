@@ -1,4 +1,5 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import BungieImage from 'app/dim-ui/BungieImage';
 import Dropdown, { Option } from 'app/dim-ui/Dropdown';
 import KeyHelp from 'app/dim-ui/KeyHelp';
 import { useHotkey, useHotkeys } from 'app/hotkeys/useHotkey';
@@ -6,6 +7,8 @@ import { I18nKey, t } from 'app/i18next-t';
 import { TagCommand, itemTagList } from 'app/inventory/dim-item-info';
 import { DimStore } from 'app/inventory/store-types';
 import { getCurrentStore, getVault } from 'app/inventory/stores-helpers';
+import { useD2Definitions } from 'app/manifest/selectors';
+import { DEFAULT_ORNAMENTS, DEFAULT_SHADER } from 'app/search/d2-known-values';
 import {
   AppIcon,
   compareIcon,
@@ -39,6 +42,8 @@ function ItemActions({
   onTagSelectedItems,
   onMoveSelectedItems,
   onCompareSelectedItems,
+  onApplyShader,
+  onApplyOrnament,
 }: {
   stores: DimStore[];
   itemsAreSelected: boolean;
@@ -47,8 +52,11 @@ function ItemActions({
   onTagSelectedItems: (tagInfo: TagCommandInfo) => void;
   onMoveSelectedItems: (store: DimStore) => void;
   onCompareSelectedItems: () => void;
+  onApplyShader: () => void;
+  onApplyOrnament: () => void;
 }) {
   const isPhonePortrait = useIsPhonePortrait();
+  const defs = useD2Definitions();
   const currentStore = getCurrentStore(stores)!;
   const vault = getVault(stores)!;
   const tagItems: Option[] = bulkItemTags.map((tagInfo) => ({
@@ -111,6 +119,9 @@ function ItemActions({
     useCallback(() => onMoveSelectedItems(vault), [vault, onMoveSelectedItems]),
   );
 
+  const defaultShaderIcon = defs?.InventoryItem.get(DEFAULT_SHADER)?.displayProperties.icon;
+  const defaultOrnamentIcon = defs?.InventoryItem.get(DEFAULT_ORNAMENTS[2])?.displayProperties.icon;
+
   return (
     <div className={styles.itemActions}>
       <button
@@ -151,6 +162,34 @@ function ItemActions({
         <AppIcon icon={moveIcon} />
         <span className={styles.label}>{t('Organizer.BulkMove')}</span>
       </Dropdown>
+      <button
+        type="button"
+        className={`dim-button ${styles.actionButton}`}
+        disabled={!itemsAreSelected}
+        name="applyShader"
+        onClick={onApplyShader}
+      >
+        {defaultShaderIcon ? (
+          <BungieImage src={defaultShaderIcon} width="16" height="16" />
+        ) : (
+          <AppIcon icon={tagIcon} />
+        )}
+        <span className={styles.label}>{t('Sockets.Insert.Shader')}</span>
+      </button>
+      <button
+        type="button"
+        className={`dim-button ${styles.actionButton}`}
+        disabled={!itemsAreSelected}
+        name="applyOrnament"
+        onClick={onApplyOrnament}
+      >
+        {defaultOrnamentIcon ? (
+          <BungieImage src={defaultOrnamentIcon} width="16" height="16" />
+        ) : (
+          <AppIcon icon={tagIcon} />
+        )}
+        <span className={styles.label}>{t('Sockets.Insert.Ornament')}</span>
+      </button>
       <button
         type="button"
         className={`dim-button ${styles.actionButton}`}

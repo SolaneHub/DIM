@@ -6,7 +6,9 @@
 }
 
 .actionButton {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .tip {

@@ -4,8 +4,9 @@ import UserGuideLink from 'app/dim-ui/UserGuideLink';
 import useBulkNote from 'app/dim-ui/useBulkNote';
 import useConfirm from 'app/dim-ui/useConfirm';
 import { t, tl } from 'app/i18next-t';
+import { insertPlug } from 'app/inventory/advanced-write-actions';
 import { bulkLockItems, bulkTagItems } from 'app/inventory/bulk-actions';
-import { DimItem, DimStat } from 'app/inventory/item-types';
+import { DimItem, DimSocket, DimStat } from 'app/inventory/item-types';
 import {
   allItemsSelector,
   createItemContextSelector,
@@ -20,6 +21,7 @@ import {
   applySocketOverrides,
   useSocketOverridesForItems,
 } from 'app/inventory/store/override-sockets';
+import SocketDetails from 'app/item-popup/SocketDetails';
 import { applyLoadout } from 'app/loadout-drawer/loadout-apply';
 import { convertToLoadoutItem, newLoadout } from 'app/loadout-drawer/loadout-utils';
 import { loadoutsByItemSelector } from 'app/loadout/selectors';
@@ -34,11 +36,12 @@ import { useThunkDispatch } from 'app/store/thunk-dispatch';
 import { Comparator, chainComparator, compareBy, reverseComparator } from 'app/utils/comparators';
 import { emptyArray } from 'app/utils/empty';
 import { useSetCSSVarToHeight, useShiftHeld } from 'app/utils/hooks';
+import { getSocketsByType, plugFitsIntoSocket } from 'app/utils/socket-utils';
 import { LookupTable } from 'app/utils/util-types';
 import { hasWishListSelector, wishListFunctionSelector } from 'app/wishlists/selectors';
 import { DestinyClass } from 'bungie-api-ts/destiny2';
 import clsx from 'clsx';
-import { ItemCategoryHashes } from 'data/d2/generated-enums';
+import { ItemCategoryHashes, PlugCategoryHashes } from 'data/d2/generated-enums';
 import React, { ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Dropzone, { DropzoneOptions } from 'react-dropzone';
 import { useSelector } from 'react-redux';
@@ -177,6 +180,15 @@ export default function ItemTable({ categories }: { categories: ItemCategoryTree
     () => (terminal ? buildStatInfo(items) : emptyArray<DimStat>()),
     [terminal, items],
   );
+
+  const [shaderPickerSocket, setShaderPickerSocket] = useState<{
+    item: DimItem;
+    socket: DimSocket;
+  }>();
+  const [ornamentPickerSocket, setOrnamentPickerSocket] = useState<{
+    item: DimItem;
+    socket: DimSocket;
+  }>();
 
   const columns: ColumnDefinition[] = useMemo(
     () =>
@@ -335,6 +347,82 @@ export default function ItemTable({ categories }: { categories: ItemCategoryTree
     }
   }, [dispatch, items, selectedItemIds]);
 
+  const onApplyShader = useCallback(() => {
+    const selectedItems = items.filter((i) => selectedItemIds.includes(i.id));
+    for (const item of selectedItems) {
+      const shaderSocket = getSocketsByType(item, 'cosmetics', false).find(
+        (s) => s.plugged?.plugDef.plug.plugCategoryHash === PlugCategoryHashes.Shader,
+      );
+      if (shaderSocket) {
+        setShaderPickerSocket({ item, socket: shaderSocket });
+        return;
+      }
+    }
+  }, [items, selectedItemIds]);
+
+  const onApplyOrnament = useCallback(() => {
+    const selectedItems = items.filter((i) => selectedItemIds.includes(i.id));
+    for (const item of selectedItems) {
+      const ornamentSocket = getSocketsByType(item, 'cosmetics', false).find(
+        (s) =>
+          !defs?.SocketType.get(s.socketDefinition.socketTypeHash)?.plugWhitelist.some(
+            (pw) => pw.categoryHash === PlugCategoryHashes.Shader,
+          ) &&
+          s.plugged?.plugDef.plug.plugCategoryHash !== PlugCategoryHashes.Mementos &&
+          s.plugged?.plugDef.plug.plugCategoryIdentifier.includes('skin'),
+      );
+      if (ornamentSocket) {
+        setOrnamentPickerSocket({ item, socket: ornamentSocket });
+        return;
+      }
+    }
+  }, [defs, items, selectedItemIds]);
+
+  const handleShaderSelected = useCallback(
+    ({ plugHash }: { plugHash: number }) => {
+      const selectedItems = items.filter((i) => selectedItemIds.includes(i.id));
+      const actions = filterMap(selectedItems, (item) => {
+        const shaderSocket = getSocketsByType(item, 'cosmetics', false).find(
+          (s) => s.plugged?.plugDef.plug.plugCategoryHash === PlugCategoryHashes.Shader,
+        );
+        return shaderSocket && plugFitsIntoSocket(shaderSocket, plugHash)
+          ? dispatch(insertPlug(item, shaderSocket, plugHash))
+          : undefined;
+      });
+
+      if (actions.length) {
+        loadingTracker.addPromise(Promise.all(actions));
+      }
+      setShaderPickerSocket(undefined);
+    },
+    [dispatch, items, selectedItemIds],
+  );
+
+  const handleOrnamentSelected = useCallback(
+    ({ plugHash }: { plugHash: number }) => {
+      const selectedItems = items.filter((i) => selectedItemIds.includes(i.id));
+      const actions = filterMap(selectedItems, (item) => {
+        const ornamentSocket = getSocketsByType(item, 'cosmetics', false).find(
+          (s) =>
+            !defs?.SocketType.get(s.socketDefinition.socketTypeHash)?.plugWhitelist.some(
+              (pw) => pw.categoryHash === PlugCategoryHashes.Shader,
+            ) &&
+            s.plugged?.plugDef.plug.plugCategoryHash !== PlugCategoryHashes.Mementos &&
+            s.plugged?.plugDef.plug.plugCategoryIdentifier.includes('skin'),
+        );
+        return ornamentSocket && plugFitsIntoSocket(ornamentSocket, plugHash)
+          ? dispatch(insertPlug(item, ornamentSocket, plugHash))
+          : undefined;
+      });
+
+      if (actions.length) {
+        loadingTracker.addPromise(Promise.all(actions));
+      }
+      setOrnamentPickerSocket(undefined);
+    },
+    [defs, dispatch, items, selectedItemIds],
+  );
+
   const gridSpec = `min-content ${filteredColumns
     .map((c) => c.gridWidth ?? 'min-content')
     .join(' ')}`;
@@ -438,6 +526,8 @@ export default function ItemTable({ categories }: { categories: ItemCategoryTree
             onTagSelectedItems={onTagSelectedItems}
             onMoveSelectedItems={onMoveSelectedItems}
             onCompareSelectedItems={onCompareSelectedItems}
+            onApplyShader={onApplyShader}
+            onApplyOrnament={onApplyOrnament}
           />
           <UserGuideLink topic="Organizer" />
           <Dropzone onDrop={importCsv} accept={{ 'text/csv': ['.csv'] }} useFsAccessApi={false}>
@@ -536,6 +626,24 @@ export default function ItemTable({ categories }: { categories: ItemCategoryTree
         ))}
       </div>
       {rows.length > maxItems && <ItemListExpander numItems={maxItems} onExpand={expandItems} />}
+      {shaderPickerSocket && (
+        <SocketDetails
+          item={shaderPickerSocket.item}
+          socket={shaderPickerSocket.socket}
+          allowInsertPlug={false}
+          onClose={() => setShaderPickerSocket(undefined)}
+          onPlugSelected={handleShaderSelected}
+        />
+      )}
+      {ornamentPickerSocket && (
+        <SocketDetails
+          item={ornamentPickerSocket.item}
+          socket={ornamentPickerSocket.socket}
+          allowInsertPlug={false}
+          onClose={() => setOrnamentPickerSocket(undefined)}
+          onPlugSelected={handleOrnamentSelected}
+        />
+      )}
     </>
   );
 }
