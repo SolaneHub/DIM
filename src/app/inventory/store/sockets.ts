@@ -219,12 +219,15 @@ function buildDefinedSockets(
 }
 
 function filterReusablePlug(reusablePlug: DimPlug) {
+  const hash = reusablePlug.plugDef.hash;
   return (
+    hash !== 29505215 &&
     !reusablePlug.plugDef.itemCategoryHashes?.some(
       (ich) =>
         ich === ItemCategoryHashes.MasterworksMods ||
         ich === ItemCategoryHashes.GhostModsProjections,
-    ) && !reusablePlug.plugDef.plug?.plugCategoryIdentifier.includes('masterworks.stat')
+    ) &&
+    !reusablePlug.plugDef.plug?.plugCategoryIdentifier.includes('masterworks.stat')
   );
 }
 

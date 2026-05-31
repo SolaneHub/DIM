@@ -25,7 +25,8 @@ export default function ApplyPerkSelection({
   const destiny2CoreSettings = useSelector(destiny2CoreSettingsSelector)!;
   const [insertInProgress, setInsertInProgress] = useState(false);
   const wishlistRoll = useSelector(wishListSelector(item));
-  if (!item.sockets) {
+  const sockets = item.sockets;
+  if (!sockets) {
     return null;
   }
 
@@ -35,7 +36,7 @@ export default function ApplyPerkSelection({
   if (wishlistRoll && !wishlistRoll.isUndesirable && wishlistRoll.matchingRolls.length > 0) {
     // Find if any roll matches current selection
     const currentRollIndex = wishlistRoll.matchingRolls.findIndex((roll) => {
-      for (const socket of item.sockets.allSockets) {
+      for (const socket of sockets.allSockets) {
         if (socket.isPerk && socket.plugOptions.length > 1) {
           const wishlistPlug = socket.plugOptions.find((p) =>
             roll.wishListPerks.has(p.plugDef.hash),
@@ -56,7 +57,7 @@ export default function ApplyPerkSelection({
       const roll = wishlistRoll.matchingRolls[index];
       if (!roll.isUndesirable) {
         const changes: { socket: DimSocket; plugHash: number }[] = [];
-        for (const socket of item.sockets.allSockets) {
+        for (const socket of sockets.allSockets) {
           if (socket.isPerk && socket.plugOptions.length > 1) {
             const wishlistPlug = socket.plugOptions.find((p) =>
               roll.wishListPerks.has(p.plugDef.hash),
@@ -74,7 +75,7 @@ export default function ApplyPerkSelection({
     }
   }
 
-  for (const socket of item.sockets.allSockets) {
+  for (const socket of sockets.allSockets) {
     if (
       !item.vendor &&
       socket.actuallyPlugged &&
