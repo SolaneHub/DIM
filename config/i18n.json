@@ -670,6 +670,7 @@
     "ExcludeVendors": "Search \"not:vendor\" to exclude vendor items from Loadout Optimizer.",
     "ExistingLoadout": "Existing Loadout",
     "FOTLWildcardWarning": "This set contains a Festival of the Lost mask. Manually apply the correct mod to activate desired set bonuses.",
+    "SetBonusModWarning": "This set contains an item with a configurable set bonus mod. Manually apply the correct mod to activate the desired set bonus.",
     "ExoticClassItemPerks": "If you want specific perks, use searches like exactperk:\"spirit of verity\". Click perks in the Optimizer results to add or remove them from the item filter.",
     "ExoticSpecialCategory": "Special",
     "Filter": "Settings",
@@ -1070,7 +1071,6 @@
     "Vault": "Vault",
     "WeaponLevel": "Weapon Level {{level}}",
     "CatalystProgress": "Catalyst Progress",
-    "ArtifactBreaker": "This weapon has {{breaker}} because of an unlocked artifact perk.",
     "IntrinsicBreaker": "This weapon intrinsically has {{breaker}}."
   },
   "Notes": {
@@ -1352,8 +1352,6 @@
     "EquippableGear": "Equippable Gear",
     "MaxGearPowerOneExoticRule": "Maximum Power of equippable gear\n(only one Exotic armor piece equipped)",
     "MaxGearPowerAll": "Maximum Power of all gear",
-    "PowerModifier": "Power granted by seasonal experience progression",
-    "MaxTotalPower": "Maximum total Power",
     "Milliseconds": "ms",
     "NoBonus": "No Bonus",
     "NotApplicable": "N/A",
