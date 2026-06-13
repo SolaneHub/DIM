@@ -4,6 +4,7 @@ const exoticWeaponHashesWithCatalyst = new Set<number>([
   46524085, // Osteo Striga
   204878059, // Malfeasance
   219145368, // The Manticore
+  253843484, // Turncoat
   331231237, // Finality's Auger
   347366834, // Ace of Spades
   370712896, // Salvation's Grip
@@ -22,6 +23,7 @@ const exoticWeaponHashesWithCatalyst = new Set<number>([
   1047932517, // Slayer's Fang
   1111334348, // Ice Breaker
   1201830623, // Truth
+  1202007252, // Whirling Ovation
   1234150730, // Trespasser
   1331482397, // MIDA Multi-Tool
   1345867570, // Sweet Business
@@ -54,6 +56,7 @@ const exoticWeaponHashesWithCatalyst = new Set<number>([
   2084878005, // Heir Apparent
   2130065553, // Arbalest
   2179048386, // Forerunner
+  2197778303, // Fafnir
   2208405142, // Telesto
   2232171099, // Deathbringer
   2286143274, // The Huckleberry
