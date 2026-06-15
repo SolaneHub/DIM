@@ -12,7 +12,6 @@ import {
   createItemContextSelector,
   getNotesSelector,
   getTagSelector,
-  newItemsSelector,
   storesSelector,
 } from 'app/inventory/selectors';
 import { downloadCsvFiles, importTagsNotesFromCsv } from 'app/inventory/spreadsheets';
@@ -131,7 +130,6 @@ export default function ItemTable({ categories }: { categories: ItemCategoryTree
   const enabledColumns = useSelector(settingSelector(columnSetting(itemType)));
   const itemCreationContext = useSelector(createItemContextSelector);
   const loadoutsByItem = useSelector(loadoutsByItemSelector);
-  const newItems = useSelector(newItemsSelector);
   const destinyVersion = useSelector(destinyVersionSelector);
   const dispatch = useThunkDispatch();
 
@@ -202,7 +200,6 @@ export default function ItemTable({ categories }: { categories: ItemCategoryTree
         hasWishList,
         customStats,
         loadoutsByItem,
-        newItems,
         destinyVersion,
         onPlugClicked,
       ),
@@ -215,7 +212,6 @@ export default function ItemTable({ categories }: { categories: ItemCategoryTree
       getNotes,
       customStats,
       loadoutsByItem,
-      newItems,
       destinyVersion,
       onPlugClicked,
     ],
