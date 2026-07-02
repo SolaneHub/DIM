@@ -1,5 +1,8 @@
 ## Next
 
+* Fixed a bug that prevented saving searches on the loadouts page
+* Improved Loadout Optimizer speed.
+
 ## 8.131.0 <span class="changelog-date">(2026-06-28)</span>
 
 * Chinese and Spanish language variants now fall back to their sibling variant before English for any untranslated text.
