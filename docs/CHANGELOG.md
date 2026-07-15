@@ -1,5 +1,12 @@
 ## Next
 
+* Reject Bungie OAuth callbacks whose state parameter is missing when no state was stored, closing a login CSRF where an attacker-supplied code could be exchanged.
+* The Loadout Optimizer is up to 2x faster when activity mods are locked.
+* Loadout Optimizer no longer waits for vendors to load.
+* Link to the user guide for why Loadout Optimizer / Loadout Analyzer can be slow from the Loadouts and LO pages.
+
+## 8.133.0 <span class="changelog-date">(2026-07-12)</span>
+
 * Fixed saved loadouts placing tuning mods on the wrong armor piece when applying or previewing them. You must re-save the loadout via optimizer one time.
 * Exotic armor ornaments are correctly shown as unlocked in Fashion and are no longer skipped when applying loadouts.
 * The Loadout Optimizer is dramatically faster, especially "show all sets" searches.
