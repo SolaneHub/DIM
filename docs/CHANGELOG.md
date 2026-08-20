@@ -1,6 +1,20 @@
 ## Next
 
-* Hide the combat flair mod socket on non-Tier-5 weapons.
+* Replaced tier pips to better match the in-game graphics.
+
+## 8.138.1 <span class="changelog-date">(2026-08-17)</span>
+
+* Fixed bad contrast on anti-champion/kinetic element icons
+* Fixed items that didn't have an anti-champion type
+
+## 8.138.0 <span class="changelog-date">(2026-08-16)</span>
+
+* Added anti-champion type to the item tile and moved it next to damage type in the item popup.
+* You can now sort and group by anti-champion type in the inventory screen.
+* Added `is:tieredweapon` filter to list weapons with tiers.
+* Add compare filter buttons for breaker type, breaker type + slot, and breaker type + element.
+* Set bonuses in the optimizer's picker are now sorted alphabetically.
+* Artifacts in shared loadouts are now automatically matched to the same artifact in your inventory. You don't have to choose it anymore.
 
 ## 8.137.0 <span class="changelog-date">(2026-08-09)</span>
 
