@@ -60,6 +60,7 @@
 }
 
 .masterwork {
+  --theme-item-polaroid-invert: var(--theme-item-polaroid-invert-mw);
   background-color: var(--theme-item-polaroid-masterwork);
   color: var(--theme-item-polaroid-masterwork-txt);
 }
