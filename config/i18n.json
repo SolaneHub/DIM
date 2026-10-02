@@ -901,7 +901,8 @@
       "Fashion": "Fashion (shaders & ornaments)",
       "Subclass": "Subclass customization",
       "LoadoutOptimizer": "Loadout Optimizer settings",
-      "Notes": "Notes"
+      "Notes": "Notes",
+      "SocketOverrides": "Subclass/artifact customization"
     },
     "ShareLoadout": "Share",
     "ShowModPlacement": "Show Mod Placement",
@@ -1195,6 +1196,12 @@
     "QueryFilteredTrackedTriumphs": "None of your tracked triumphs matched the search",
     "NoTrackedTriumph": "You have no tracked triumphs. Track as many as you like in DIM.",
     "NoEventChallenges": "You have completed all event challenges",
+    "Objectives": "Objectives",
+    "DailyObjectives": "Daily Objectives",
+    "NoDailyObjectives": "You have completed all your daily objectives",
+    "WeeklyObjectives": "Weekly Objectives",
+    "NoWeeklyObjectives": "You have completed all your weekly objectives",
+    "Orders": "Orders",
     "CatalystSource": "Source: {{source}}"
   },
   "RecordBooks": {
